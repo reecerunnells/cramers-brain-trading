@@ -71,7 +71,7 @@ const executeTrade = async (stonks: string[]): Promise<null> => {
 export const getThoseTendies = functions
     .runWith({memory: "4GB", secrets: ["ALPACA_KEYID", "ALPACA_SECRETKEY", "OPENAI_ORGANIZATION", "OPENAI_APIKEY"]})
     .pubsub
-    .schedule("0 11 * * 1-5")
+    .schedule("35 9 * * 1-5")
     .timeZone("America/New_York")
     .onRun(async () => {
       try {
