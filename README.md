@@ -4,6 +4,6 @@ The inspiration for this Google Firebase Function comes straight from [Fireship]
 
 ### Repos
 - [alpacahq/alpaca-trade-api-js](https://github.com/alpacahq/alpaca-trade-api-js)
-    - typescript: [@master-chief/alpaca](test)
+    - typescript: [@master-chief/alpaca](https://github.com/117/alpaca)
 - [openai](https://github.com/openai/openai-node)
 - [puppeteer](https://github.com/puppeteer/puppeteer)
