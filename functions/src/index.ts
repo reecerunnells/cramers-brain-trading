@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import * as functions from "firebase-functions";
-import * as puppeteer from "puppeteer";
+import puppeteer from "puppeteer";
 import {Configuration, OpenAIApi} from "openai";
 import {AlpacaClient} from "@master-chief/alpaca";
 
@@ -71,7 +71,7 @@ const executeTrade = async (stonks: string[]): Promise<null> => {
 export const getThoseTendies = functions
     .runWith({memory: "4GB", secrets: ["ALPACA_KEYID", "ALPACA_SECRETKEY", "OPENAI_ORGANIZATION", "OPENAI_APIKEY"]})
     .pubsub
-    .schedule("40 9 * * 1-5")
+    .schedule("0 11 * * 1-5")
     .timeZone("America/New_York")
     .onRun(async () => {
       try {
