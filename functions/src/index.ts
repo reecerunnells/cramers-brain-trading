@@ -31,7 +31,7 @@ const getCramersBrainDumpViaTwitter = async () => {
   return tweets;
 };
 
-const aiGenerateAStonkPick = async (tweets: string): Promise<string[]> => {
+const aiGetThoseSweetSweetStonks = async (tweets: string) => {
   const gptCompletion = await openai.createCompletion("text-davinci-002", {
     prompt: `${tweets} Jim Cramer recommends selling the following stock tickers: `,
     temperature: 0.7,
@@ -41,10 +41,11 @@ const aiGenerateAStonkPick = async (tweets: string): Promise<string[]> => {
     presence_penalty: 0,
   });
   const stonks = gptCompletion?.data?.choices?.[0].text?.match(/\b[A-Z]+\b/g);
+  console.info(`Here are the stonk picks. Stonks: ${stonks}`);
   return stonks?.filter((stonk) => stonk !== "CRM") || [];
 };
 
-const executeTrade = async (stonks: string[]): Promise<null> => {
+const executeTrade = async (stonks: string[], buyingPower: number) => {
   await alpaca.cancelOrders();
   await alpaca.closePositions({cancel_orders: true});
 
@@ -53,11 +54,9 @@ const executeTrade = async (stonks: string[]): Promise<null> => {
     return null;
   }
 
-  const account = await alpaca.getAccount();
-
   const order = await alpaca.placeOrder({
     symbol: stonks[0],
-    notional: account.buying_power * 0.9,
+    notional: buyingPower * 0.333,
     side: "buy",
     type: "market",
     time_in_force: "day",
@@ -71,27 +70,32 @@ const executeTrade = async (stonks: string[]): Promise<null> => {
 export const getThoseTendies = functions
     .runWith({memory: "4GB", secrets: ["ALPACA_KEYID", "ALPACA_SECRETKEY", "OPENAI_ORGANIZATION", "OPENAI_APIKEY"]})
     .pubsub
-    .schedule("35 9 * * 1-5")
+    .schedule("40 9 * * 1-5")
     .timeZone("America/New_York")
     .onRun(async () => {
       try {
+        const account = await alpaca.getAccount();
+        if (account?.daytrade_count > 2) {
+          console.info(`Sitting this one out. Daytrade count is currently pretty high. ${account.daytrade_count}`);
+          return null;
+        }
         const tweets: string = await getCramersBrainDumpViaTwitter();
-        const stonks = await aiGenerateAStonkPick(tweets);
-        await executeTrade(stonks);
+        const stonks = await aiGetThoseSweetSweetStonks(tweets);
+        await executeTrade(stonks, account?.buying_power);
       } catch (err) {
-        console.log(`Problem getting those tendies, Morty.  Issue: ${err}`);
+        console.error(`Problem getting those tendies, Morty.  Issue: ${err}`);
       }
       return null;
     });
 
+// close all positions from the previous trading day at market open.
 export const closeAllTrades = functions
     .runWith({secrets: ["ALPACA_KEYID", "ALPACA_SECRETKEY"]})
     .pubsub
-    .schedule("50 15 * * 1-5")
+    .schedule("30 9 * * 1-5")
     .timeZone("America/New_York")
     .onRun(async () => {
       try {
-        await alpaca.cancelOrders();
         await alpaca.closePositions({cancel_orders: true});
         console.info("Orders canceled. Positions closed.  Check your tendies now Boss.");
       } catch (err) {
