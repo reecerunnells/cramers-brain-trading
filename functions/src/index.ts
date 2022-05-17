@@ -49,14 +49,16 @@ const executeTrade = async (stonks: string[], buyingPower: number) => {
   await alpaca.cancelOrders();
   await alpaca.closePositions({cancel_orders: true});
 
+  const random = Math.floor(Math.random() * stonks.length);
+
   if (!stonks.length) {
     console.info("No stonks today boys.");
     return null;
   }
 
   const order = await alpaca.placeOrder({
-    symbol: stonks[0],
-    notional: buyingPower * 0.333,
+    symbol: stonks[random],
+    notional: buyingPower * 0.5,
     side: "buy",
     type: "market",
     time_in_force: "day",
