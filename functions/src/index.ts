@@ -4,6 +4,8 @@ import puppeteer from "puppeteer";
 import {Configuration, OpenAIApi} from "openai";
 import {AlpacaClient} from "@master-chief/alpaca";
 
+const NOTIONAL_PERCENT = 0.9;
+
 const openai = new OpenAIApi(new Configuration({
   organization: process.env.OPENAI_ORGANIZATION,
   apiKey: process.env.OPENAI_APIKEY,
@@ -58,7 +60,7 @@ const executeTrade = async (stonks: string[], buyingPower: number) => {
 
   const order = await alpaca.placeOrder({
     symbol: stonks[random],
-    notional: buyingPower * 0.5,
+    notional: buyingPower * NOTIONAL_PERCENT,
     side: "buy",
     type: "market",
     time_in_force: "day",
