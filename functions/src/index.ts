@@ -46,9 +46,6 @@ const aiGetThoseSweetSweetStonks = async (tweets: string) => {
 };
 
 const executeTrade = async (stonks: string[], buyingPower: number) => {
-  await alpaca.cancelOrders();
-  await alpaca.closePositions({cancel_orders: true});
-
   const random = Math.floor(Math.random() * stonks.length);
 
   if (!stonks.length) {
@@ -83,7 +80,7 @@ export const getThoseTendies = functions
         }
         const tweets: string = await getCramersBrainDumpViaTwitter();
         const stonks = await aiGetThoseSweetSweetStonks(tweets);
-        await executeTrade(stonks, account?.buying_power);
+        await executeTrade(stonks, account?.cash);
       } catch (err) {
         console.error(`Problem getting those tendies, Morty.  Issue: ${err}`);
       }
